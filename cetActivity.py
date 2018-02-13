@@ -2,21 +2,25 @@
 #cetActivity.py
 
 #libraries
-import csv, codecs, datetime
+import csv, codecs, datetime, shutil,os
 types_of_encoding = ["utf8", "cp1252"]
 
 
+
+
 #PARAMETERS
-filePath = 'C:\\Users\\dermer\\PythonScripts\\Caesars\\'
-processDate = "01-18"
+filePath = 'C:\\Users\\dermer\\AppData\\Local\\Programs\\Python\\Caesars\\'
 
 datelabel = datetime.datetime.today().strftime("%Y%m%d")
-print(datelabel)
 
-cfp = filePath + processDate + "\\CET_WHG_20180118.txt"
-ofp = filePath + processDate + "\\CET_STAYS_" + datelabel + "_100101.txt"
+print('Datestamp of file (YYYYMMDD):')
+fileDate = input()
+
+cfp = filePath + "CET_WHG_" + fileDate + ".txt"
+ofp = filePath + "ProcessedForUpload\\CET_STAYS_" + datelabel + "_100101.txt"
 sfp = filePath + "ArrivalsDepartures.csv"
-rfp = filePath + "CET_AwardNightRedemptionReport_012318.csv"
+rfp = filePath + "CET_AwardNightRedemptionReport.csv"
+afp = filePath + "InboundArchive"
 
 #Dictionaries/lists
 sabreMemDict = {}
@@ -115,4 +119,5 @@ print("BAR Stays w Member Number: " + str(countBarMem).rjust(10))
 print("GO FREE Stays w Member Number: " + str(countFRE).rjust(6))
 print("GO FAST Stays w Member Number: " + str(countFST).rjust(6))
 print("Processing Complete.")
-
+shutil.move(cfp ,afp)
+print("Caesar File Archived.")
