@@ -59,9 +59,9 @@ masterWS = masterWB.active
 MasterIData = {}
 for row in masterWS.iter_rows(row_offset=1):
 
-    billDate = row[27].value
-    if isinstance(billDate,datetime.datetime):
-        billDate = billDate.strftime("%b") + "-" + billDate.strftime("%y")
+##    billDate = row[27].value
+##    if isinstance(billDate,datetime.datetime):
+##        billDate = billDate.strftime("%b") + "-" + billDate.strftime("%y")
 
     MasterIData[row[15].value] = {'Unique Identifier':row[15].value,
                         'Member #':row[1].value,
@@ -90,7 +90,7 @@ for row in masterWS.iter_rows(row_offset=1):
                         'Total Reimbursement':row[24].value,
                         'Redemption Processing Notes':row[25].value,
                         'Invoice Processing Notes':row[26].value,
-                        'Billed Date':billDate,
+                        'Billed Date':row[27].value,
                         'Amount Billed':row[28].value,
                         'Row Color':'white'}
 masterWB.close()
@@ -285,8 +285,8 @@ for row in iws.iter_rows(row_offset=9):
 
                     #Update master record
                     MasterIData[mID]['Row Color'] = '#44FF44'
-                    MasterIData[mID]['Billed Date'] = monthlabel
-                    MasterIData[mID]['Amount Billed'] = rReq
+##                    MasterIData[mID]['Billed Date'] = monthlabel
+##                    MasterIData[mID]['Amount Billed'] = rReq
 
                     #Update invoice record
                     row[21].value = "Yes"
@@ -343,6 +343,8 @@ for k,v in (MasterIData.items()):
     for i in v.values():
         if (col == 4) or (col == 8):
             cellf = workbook.add_format({'bg_color': clr, 'border':1, 'num_format':'mm/dd/yyyy'})
+        elif (col == 27):
+            cellf = workbook.add_format({'bg_color': clr, 'border':1, 'num_format':'yy-mmm'})
         else:
             cellf = workbook.add_format({'bg_color': clr, 'border':1})
             
