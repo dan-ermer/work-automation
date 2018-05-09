@@ -28,10 +28,10 @@ monthlabel = datetime.datetime.today().strftime("%b") + "-" + datetime.datetime.
 FP = 'C:\\Users\\dermer\\AppData\\Local\\Programs\\Python\\WVO\\'
 
 #Get Latest Strategy
-MasterFP = FP + 'WVO Redemptions Master.xlsx'
+MasterFP = FP + 'BlueThread Master Report.xlsx'
 OlsonFP = FP + 'WEH_AwardNightRedemptionReport.csv'
 PropFP = FP + 'Rates.csv' 
-InvoiceFP = FP + 'Wyndham Rewards EH Interco Redemption Invoice -January 2018.xlsx'
+InvoiceFP = FP + 'Wyndham Rewards EH Interco Redemption Invoice - April.xlsx'
 
 #1. Read in latest Olson WVO Redemptions
 OlsonData = csv.DictReader(open(OlsonFP, 'r'))
@@ -62,37 +62,37 @@ for row in masterWS.iter_rows(row_offset=1):
 ##    billDate = row[27].value
 ##    if isinstance(billDate,datetime.datetime):
 ##        billDate = billDate.strftime("%b") + "-" + billDate.strftime("%y")
-
-    MasterIData[row[15].value] = {'Unique Identifier':row[15].value,
-                        'Member #':row[1].value,
-                        'Member Level':row[2].value,
-                        'Member Country of Residence':row[3].value,
-                        'Redemption Date':row[4].value,
-                        'Description':row[5].value,
-                        'Site Name':row[6].value,
-                        'Status':row[7].value,
-                        'Arrival Date':row[8].value,
-                        'Total Bedrooms':row[9].value,
-                        'Total Nights':row[10].value,
-                        'Points Per Award':row[11].value,
-                        'Total Points Redeemed':row[12].value,
-                        'PLUS Eligible':row[13].value,
-                        'User ID':row[14].value,
-                        'Award Number':row[15].value,
-                        'Affiliation':row[16].value,
-                        'Confirmation Number':row[17].value,
-                        'Validation':row[18].value ,
-                        'Comments':row[19].value ,
-                        'iHotelier ID':row[20].value,
-                        'SPE ID':row[21].value,
-                        'Rate Schedule':row[22].value,
-                        'Daily Reimbursement':row[23].value,
-                        'Total Reimbursement':row[24].value,
-                        'Redemption Processing Notes':row[25].value,
-                        'Invoice Processing Notes':row[26].value,
-                        'Billed Date':row[27].value,
-                        'Amount Billed':row[28].value,
-                        'Row Color':'white'}
+    if row[15].value is not None:
+        MasterIData[row[15].value] = {'Unique Identifier':row[15].value,
+                            'Member #':row[1].value,
+                            'Member Level':row[2].value,
+                            'Member Country of Residence':row[3].value,
+                            'Redemption Date':row[4].value,
+                            'Description':row[5].value,
+                            'Site Name':row[6].value,
+                            'Status':row[7].value,
+                            'Arrival Date':row[8].value,
+                            'Total Bedrooms':row[9].value,
+                            'Total Nights':row[10].value,
+                            'Points Per Award':row[11].value,
+                            'Total Points Redeemed':row[12].value,
+                            'PLUS Eligible':row[13].value,
+                            'User ID':row[14].value,
+                            'Award Number':int(row[15].value),
+                            'Affiliation':row[16].value,
+                            'Confirmation Number':row[17].value,
+                            'Validation':row[18].value ,
+                            'Comments':row[19].value ,
+                            'iHotelier ID':int(row[20].value),
+                            'SPE ID':int(row[21].value),
+                            'Rate Schedule':row[22].value,
+                            'Daily Reimbursement':float(row[23].value),
+                            'Total Reimbursement':float(row[24].value),
+                            'Redemption Processing Notes':row[25].value,
+                            'Invoice Processing Notes':row[26].value,
+                            'Billed Date':row[27].value,
+                            'Amount Billed':row[28].value,
+                            'Row Color':'white'}
 masterWB.close()
 
 #5. Scroll through Olson Redemptions and update master record
@@ -157,8 +157,8 @@ for orow in OlsonIData:
                 AwardRedemptionRate = PropIData[snu]['2BRRate']
         else:
             sts += "(1)No Property Match! " + r['SIte Name']
-            r['iHotelier ID'] = None
-            r['SPE ID'] = None
+            r['iHotelier ID'] = 0
+            r['SPE ID'] = 0
 
         r['Number of Rooms'] = AwardMultiplier
         r['Points Per Award'] = AwardNightlyPoints
@@ -196,11 +196,11 @@ for orow in OlsonIData:
             MasterIData[orow]['User ID'] = r['User ID']
             MasterIData[orow]['Award Number'] = int(r['Award Number'])
             MasterIData[orow]['Confirmation Number'] = r['Confirmation Number']
-            MasterIData[orow]['iHotelier ID'] = r['iHotelier ID']
-            MasterIData[orow]['SPE ID'] = r['SPE ID']
+            MasterIData[orow]['iHotelier ID'] = int(r['iHotelier ID'])
+            MasterIData[orow]['SPE ID'] = int(r['SPE ID'])
             MasterIData[orow]['Rate Schedule'] = r['Reimbursement Schedule']
-            MasterIData[orow]['Daily Reimbursement'] = r['Daily Reimbursement']
-            MasterIData[orow]['Total Reimbursement'] = r['Total Reimbursement']
+            MasterIData[orow]['Daily Reimbursement'] = float(r['Daily Reimbursement'])
+            MasterIData[orow]['Total Reimbursement'] = float(r['Total Reimbursement'])
 
 
         MasterIData[orow]['Status'] = r['Status']
@@ -254,6 +254,7 @@ for row in iws.iter_rows(row_offset=9):
             #to do: See if there are multiple redemption records and deal
             if len(MasterISearch[lookup]) > 1:
                 for i in MasterISearch[lookup]:
+                   # print('i: ' + str(i))
                     if MasterIData[i]['Invoice Processing Notes'] is None:
                         mID = int(i)
                         break; 
@@ -261,15 +262,17 @@ for row in iws.iter_rows(row_offset=9):
                 mID = int(MasterISearch[lookup][0])
 
             if (mID == 0) or (MasterIData[mID]['Invoice Processing Notes'] is not None):
-                InvoiceComment = "All matching redemptin records have already been processed" + MasterISearch[lookup]
+                InvoiceComment = "All matching redemption records have already been processed " + str(lookup)
+            elif (MasterIData[mID]['Invoice Processing Notes'] == "Cancelled"):
+                 InvoiceComment = "Matching redemption record is cancelled " + str(lookup)   
             else:
                 #we have a matching redemption record, move forward with comparison
-                row[22].value = MasterIData[mID]['Daily Reimbursement']
-                row[24].value = "Yes" #On Olson Report
+                row[24].value = MasterIData[mID]['Daily Reimbursement']
+                row[26].value = "Yes" #On Olson Report
 
                 #2b. If Compare reimbursement amounts
                 mR = MasterIData[mID]['Total Reimbursement']
-                row[23].value = mR #"Calculated Amount"
+                row[25].value = mR #"Calculated Amount"
             
                 if abs(mR - rReq) > 1:
                     InvoiceComment = "Mismatch: " + str(mR) + '(WHG) - ' + str(rReq) + '(WVO) = ' + str(mR - rReq) + ' [' + str(MasterIData[mID]['Unique Identifier']) + ']' 
@@ -277,8 +280,8 @@ for row in iws.iter_rows(row_offset=9):
                     MasterIData[mID]['Row Color'] = '#FF4444'
 
                     #Update invoice record
-                    row[21].value = "No"
-                    row[28].value = str(mR - rReq) #"Adjustment Amount"
+                    row[23].value = "No"
+                    row[30].value = str(mR - rReq) #"Adjustment Amount"
                     
                 else:
                     InvoiceComment = "Match: Move forward with payment" + ' [' + str(MasterIData[mID]['Unique Identifier']) + ']' 
@@ -289,18 +292,20 @@ for row in iws.iter_rows(row_offset=9):
 ##                    MasterIData[mID]['Amount Billed'] = rReq
 
                     #Update invoice record
-                    row[21].value = "Yes"
+                    row[23].value = "Yes"
 
             #2d. Update master redemption record with outcome
-            MasterIData[mID]['Invoice Processing Notes'] = InvoiceComment
+            #print('mID: ' + str(mID) + '  Notes: ' + InvoiceComment)
+            if mID in MasterIData:
+                MasterIData[mID]['Invoice Processing Notes'] = InvoiceComment
             
         else:
-            row[21].value = "No"
-            row[24].value = "No"
+            row[23].value = "No"
+            row[26].value = "No"
             InvoiceComment = "Cannot locate master redemption record: " + lookup
 
         #2c. Update invoice with outcome
-        row[26].value = InvoiceComment
+        row[28].value = InvoiceComment
 
     
 #re-write invoice XLS with processing outcomes
